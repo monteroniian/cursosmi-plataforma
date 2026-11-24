@@ -1323,21 +1323,18 @@ function approveCourseEnrollment({ userId, courseId, amount, paymentRef, notes }
     });
 }
 
-// 1. Obtener Llave Pública de Mercado Pago para el cliente
-app.get('/api/payments/mercadopago/public-key', (req, res) => {
-    res.json({
-        publicKey: process.env.MERCADOPAGO_PUBLIC_KEY || 'APP_USR-407612f8-6054-4711-bd8a-675942c8aeac'
-    });
-});
-
-// 2. Crear Preferencia de Pago en Mercado Pago (Checkout Pro)
+// 1. Crear Preferencia de Pago en Mercado Pago (Checkout Pro)
 app.post('/api/payments/mercadopago/create-preference', async (req, res) => {
     const { courseId, userId } = req.body;
     if (!courseId) {
         return res.status(400).json({ error: 'El ID del curso es obligatorio.' });
     }
 
-    const token = process.env.MERCADOPAGO_ACCESS_TOKEN || 'APP_USR-5315974727875473-090714-008423085990973c826207add701b97b-3672302486';
+    const token = process.env.MERCADOPAGO_ACCESS_TOKEN;
+    if (!token) {
+        console.error('MERCADOPAGO_ACCESS_TOKEN no está configurado.');
+        return res.status(500).json({ error: 'Pasarela de pago no configurada en el servidor.' });
+    }
 
     db.get(`SELECT * FROM courses WHERE id = ?`, [courseId], async (err, course) => {
         if (err || !course) {
@@ -1429,10 +1426,10 @@ app.post('/api/payments/mercadopago/create-preference', async (req, res) => {
     });
 });
 
-// 3. Confirmar Pago y Liberar Curso (llamado tras retorno exitoso de Checkout)
+// 2. Confirmar Pago y Liberar Curso (llamado tras retorno exitoso de Checkout)
 app.post('/api/payments/mercadopago/confirm', async (req, res) => {
     const { paymentId, collectionId, courseId, userId, status } = req.body;
-    const token = process.env.MERCADOPAGO_ACCESS_TOKEN || 'APP_USR-5315974727875473-090714-008423085990973c826207add701b97b-3672302486';
+    const token = process.env.MERCADOPAGO_ACCESS_TOKEN;
     const activePaymentId = paymentId || collectionId;
 
     if (!courseId || !userId) {
@@ -1443,7 +1440,7 @@ app.post('/api/payments/mercadopago/confirm', async (req, res) => {
     let paymentAmount = 0;
 
     // Si viene paymentId, verificamos directamente contra la API de Mercado Pago
-    if (activePaymentId && activePaymentId !== 'null' && activePaymentId !== 'undefined') {
+    if (token && activePaymentId && activePaymentId !== 'null' && activePaymentId !== 'undefined') {
         try {
             const mpRes = await fetch(`https://api.mercadopago.com/v1/payments/${activePaymentId}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -1480,14 +1477,14 @@ app.post('/api/payments/mercadopago/confirm', async (req, res) => {
     }
 });
 
-// 4. Webhook IPN de Mercado Pago
+// 3. Webhook IPN de Mercado Pago
 app.post('/api/payments/webhook-mp', async (req, res) => {
-    const token = process.env.MERCADOPAGO_ACCESS_TOKEN || 'APP_USR-5315974727875473-090714-008423085990973c826207add701b97b-3672302486';
+    const token = process.env.MERCADOPAGO_ACCESS_TOKEN;
     const paymentId = req.query['data.id'] || req.body?.data?.id || req.body?.id || req.query.id || req.body?.payment_id;
 
     res.status(200).send('OK');
 
-    if (!paymentId) return;
+    if (!paymentId || !token) return;
 
     try {
         const mpRes = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {

@@ -122,11 +122,6 @@ export const API = {
     },
 
     // Mercado Pago API Checkout Pro Methods
-    async getMPPublicKey() {
-        const res = await fetch(`${API_BASE}/payments/mercadopago/public-key?t=${Date.now()}`);
-        return await res.json();
-    },
-
     async createMPPreference(courseId, userId) {
         const res = await fetch(`${API_BASE}/payments/mercadopago/create-preference`, {
             method: 'POST',

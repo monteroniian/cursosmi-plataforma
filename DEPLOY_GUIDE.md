@@ -48,12 +48,11 @@ En la pestaña **Environment**, agrega las siguientes variables (copiadas de tu 
 ```env
 NODE_ENV=production
 PORT=3000
-JWT_SECRET=cursosmi_jwt_secret_production_key_2026_987x!
-SESSION_SECRET=cursosmi_session_secret_production_key_2026_123z!
-ADMIN_EMAIL=ADMIN
-ADMIN_PASSWORD=123456789123
-MERCADOPAGO_PUBLIC_KEY=APP_USR-407612f8-6054-4711-bd8a-675942c8aeac
-MERCADOPAGO_ACCESS_TOKEN=APP_USR-5315974727875473-090714-008423085990973c826207add701b97b-3672302486
+JWT_SECRET=tu_clave_secreta_jwt_para_produccion
+SESSION_SECRET=tu_clave_secreta_session_para_produccion
+ADMIN_EMAIL=soporte@cursosmi.com
+ADMIN_PASSWORD=tu_password_administrador_seguro
+MERCADOPAGO_ACCESS_TOKEN=tu_access_token_de_mercadopago
 APP_URL=https://tu-servicio.onrender.com
 ```
 

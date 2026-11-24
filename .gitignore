@@ -1,6 +1,5 @@
 # Dependencies
 node_modules/
-package-lock.json
 
 # Environment & Secrets
 .env
@@ -16,11 +15,9 @@ videos/
 # OS Files
 .DS_Store
 Thumbs.db
+desktop.ini
 
-# Media & local DB
-videos/
-uploads/
-database.sqlite
+# Media & Docs
 *.mov
 *.mp4
 *.docx
